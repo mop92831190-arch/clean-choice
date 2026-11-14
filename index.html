@@ -5,22 +5,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CLEAN CHOICE</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f5f2fa;color:#29213a;font-family:Arial,sans-serif}
-header{background:#54218a;color:white;padding:22px;border-radius:0 0 22px 22px}
-header h1{margin:0;color:#ffd43b;font-size:25px}
-header p{margin:7px 0 0}
-main{padding:18px;max-width:650px;margin:auto}
-.card{background:white;padding:18px;border-radius:16px;margin:14px 0;box-shadow:0 3px 12px #0000000c}
-h2{font-size:18px;margin-top:0}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat{background:#f0e7fa;padding:15px;border-radius:12px}
-.stat strong{display:block;font-size:24px;color:#54218a;margin-top:8px}
-button{background:#54218a;color:white;border:0;padding:12px 17px;border-radius:10px;font-weight:bold}
-button.yellow{background:#ffd43b;color:#34204c}
-input,select{width:100%;padding:12px;margin:7px 0 13px;border:1px solid #ddd;border-radius:9px;font-size:15px}
-footer{text-align:center;color:#777;padding:20px}
+body{font-family:Arial;background:#f5f2fa;margin:0;color:#30213f}
+header{background:#54218a;color:white;padding:24px;text-align:center}
+header h1{color:#ffd43b;margin:0}
+main{max-width:440px;margin:35px auto;padding:15px}
+.card{background:white;padding:22px;border-radius:16px;box-shadow:0 3px 15px #0001}
+input,button{width:100%;padding:14px;margin:9px 0;border-radius:9px;font-size:16px}
+input{border:1px solid #ddd}
+button{border:0;background:#54218a;color:white;font-weight:bold}
+#status{white-space:pre-wrap;line-height:1.8}
+.hidden{display:none}
 </style>
 </head>
 <body>
@@ -29,65 +26,92 @@ footer{text-align:center;color:#777;padding:20px}
 <p>نظام إدارة مغسلة السيارات</p>
 </header>
 <main>
-<div class="card">
-<h2>لوحة التحكم</h2>
-<div class="stats">
-<div class="stat">العملاء<strong>0</strong></div>
-<div class="stat">الغسلات اليوم<strong>0</strong></div>
-<div class="stat">الإيرادات<strong>0 OMR</strong></div>
-<div class="stat">الغسلات المجانية<strong>0</strong></div>
-</div>
+<div class="card" id="loginBox">
+<h2>تسجيل الدخول</h2>
+<input id="email" type="email" placeholder="البريد الإلكتروني">
+<input id="password" type="password" placeholder="كلمة المرور">
+<button id="loginBtn">دخول</button>
+<p id="status">أدخل بيانات حسابك.</p>
 </div>
 
-<div class="card">
-<h2>إضافة عميل</h2>
-<input id="customer" placeholder="اسم العميل">
-<input id="phone" placeholder="رقم الهاتف">
-<input id="car" placeholder="نوع السيارة">
-<button onclick="addCustomer()">إضافة العميل</button>
-</div>
-
-<div class="card">
-<h2>تسجيل غسلة</h2>
-<select id="washCustomer">
-<option value="">اختر العميل</option>
-</select>
-<select id="washType">
-<option value="fixed">غسيل ثابت</option>
-<option value="mobile">غسيل متنقل</option>
-</select>
-<button class="yellow" onclick="recordWash()">تسجيل الغسلة</button>
-<p id="message">كل 6 غسلات مدفوعة، السابعة مجانية.</p>
+<div class="card hidden" id="dashboard">
+<h2>مرحباً بك في CLEAN CHOICE</h2>
+<p id="profileInfo"></p>
+<p>تم الاتصال بقاعدة البيانات بنجاح.</p>
+<button id="logoutBtn">تسجيل الخروج</button>
 </div>
 </main>
-<footer>CLEAN CHOICE © 2026</footer>
+
 <script>
-let customers=JSON.parse(localStorage.getItem('cc_customers')||'[]');
-function save(){localStorage.setItem('cc_customers',JSON.stringify(customers));render();}
-function render(){
-document.getElementById('washCustomer').innerHTML='<option value="">اختر العميل</option>'+customers.map((c,i)=>`<option value="${i}">${c.name} - ${c.phone}</option>`).join('');
+const SUPABASE_URL = 'https://qblfqvahjmsevucuysfe.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_WSnRwXiHI1iF5ZS5UpNV-Q_sYpZuOU6';
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const statusBox = document.getElementById('status');
+const loginBox = document.getElementById('loginBox');
+const dashboard = document.getElementById('dashboard');
+
+async function showProfile(user) {
+  const {data, error} = await db
+    .from('profiles')
+    .select('full_name, role, active')
+    .eq('id', user.id)
+    .single();
+
+  if(error) {
+    statusBox.textContent = 'تعذر قراءة الملف الشخصي: ' + error.message;
+    return;
+  }
+
+  if(!data || !data.active) {
+    statusBox.textContent = 'الحساب غير مفعّل. راجع المالك.';
+    return;
+  }
+
+  loginBox.classList.add('hidden');
+  dashboard.classList.remove('hidden');
+
+  document.getElementById('profileInfo').textContent =
+    'الاسم: ' + (data.full_name || 'المستخدم') +
+    ' | الصلاحية: ' + data.role;
 }
-function addCustomer(){
-let name=document.getElementById('customer').value.trim();
-let phone=document.getElementById('phone').value.trim();
-let car=document.getElementById('car').value.trim();
-if(!name||!phone){alert('أدخل اسم العميل ورقم الهاتف');return;}
-customers.push({name,phone,car,paid:0,free:0});
-save();
-document.getElementById('customer').value='';
-document.getElementById('phone').value='';
-document.getElementById('car').value='';
-alert('تمت إضافة العميل');
-}
-function recordWash(){
-let i=document.getElementById('washCustomer').value;
-if(i===''){alert('اختر العميل');return;}
-let c=customers[i];
-if(c.paid===6){c.paid=0;c.free++;document.getElementById('message').textContent='هذه الغسلة السابعة مجانية للعميل '+c.name;}
-else{c.paid++;document.getElementById('message').textContent='تم تسجيل غسلة مدفوعة. المتبقي للغسلة المجانية: '+(6-c.paid);}
-save();
-}
-render();
+
+document.getElementById('loginBtn').onclick = async () => {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  if(!email || !password) {
+    statusBox.textContent = 'أدخل البريد الإلكتروني وكلمة المرور.';
+    return;
+  }
+
+  statusBox.textContent = 'جارٍ تسجيل الدخول...';
+
+  const {data, error} = await db.auth.signInWithPassword({
+    email, password
+  });
+
+  if(error) {
+    statusBox.textContent = 'تعذر الدخول: ' + error.message;
+    return;
+  }
+
+  await showProfile(data.user);
+};
+
+document.getElementById('logoutBtn').onclick = async () => {
+  await db.auth.signOut();
+  dashboard.classList.add('hidden');
+  loginBox.classList.remove('hidden');
+  statusBox.textContent = 'تم تسجيل الخروج.';
+};
+
+(async () => {
+  const {data} = await db.auth.getSession();
+  if(data.session) await showProfile(data.session.user);
+})();
 </script>
 </body>
 </html>
+
