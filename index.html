@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLEAN CHOICE</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f2fa;color:#29213a;font-family:Arial,sans-serif}
+header{background:#54218a;color:white;padding:22px;border-radius:0 0 22px 22px}
+header h1{margin:0;color:#ffd43b;font-size:25px}
+header p{margin:7px 0 0}
+main{padding:18px;max-width:650px;margin:auto}
+.card{background:white;padding:18px;border-radius:16px;margin:14px 0;box-shadow:0 3px 12px #0000000c}
+h2{font-size:18px;margin-top:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:#f0e7fa;padding:15px;border-radius:12px}
+.stat strong{display:block;font-size:24px;color:#54218a;margin-top:8px}
+button{background:#54218a;color:white;border:0;padding:12px 17px;border-radius:10px;font-weight:bold}
+button.yellow{background:#ffd43b;color:#34204c}
+input,select{width:100%;padding:12px;margin:7px 0 13px;border:1px solid #ddd;border-radius:9px;font-size:15px}
+footer{text-align:center;color:#777;padding:20px}
+</style>
+</head>
+<body>
+<header>
+<h1>CLEAN CHOICE</h1>
+<p>نظام إدارة مغسلة السيارات</p>
+</header>
+<main>
+<div class="card">
+<h2>لوحة التحكم</h2>
+<div class="stats">
+<div class="stat">العملاء<strong>0</strong></div>
+<div class="stat">الغسلات اليوم<strong>0</strong></div>
+<div class="stat">الإيرادات<strong>0 OMR</strong></div>
+<div class="stat">الغسلات المجانية<strong>0</strong></div>
+</div>
+</div>
+
+<div class="card">
+<h2>إضافة عميل</h2>
+<input id="customer" placeholder="اسم العميل">
+<input id="phone" placeholder="رقم الهاتف">
+<input id="car" placeholder="نوع السيارة">
+<button onclick="addCustomer()">إضافة العميل</button>
+</div>
+
+<div class="card">
+<h2>تسجيل غسلة</h2>
+<select id="washCustomer">
+<option value="">اختر العميل</option>
+</select>
+<select id="washType">
+<option value="fixed">غسيل ثابت</option>
+<option value="mobile">غسيل متنقل</option>
+</select>
+<button class="yellow" onclick="recordWash()">تسجيل الغسلة</button>
+<p id="message">كل 6 غسلات مدفوعة، السابعة مجانية.</p>
+</div>
+</main>
+<footer>CLEAN CHOICE © 2026</footer>
+<script>
+let customers=JSON.parse(localStorage.getItem('cc_customers')||'[]');
+function save(){localStorage.setItem('cc_customers',JSON.stringify(customers));render();}
+function render(){
+document.getElementById('washCustomer').innerHTML='<option value="">اختر العميل</option>'+customers.map((c,i)=>`<option value="${i}">${c.name} - ${c.phone}</option>`).join('');
+}
+function addCustomer(){
+let name=document.getElementById('customer').value.trim();
+let phone=document.getElementById('phone').value.trim();
+let car=document.getElementById('car').value.trim();
+if(!name||!phone){alert('أدخل اسم العميل ورقم الهاتف');return;}
+customers.push({name,phone,car,paid:0,free:0});
+save();
+document.getElementById('customer').value='';
+document.getElementById('phone').value='';
+document.getElementById('car').value='';
+alert('تمت إضافة العميل');
+}
+function recordWash(){
+let i=document.getElementById('washCustomer').value;
+if(i===''){alert('اختر العميل');return;}
+let c=customers[i];
+if(c.paid===6){c.paid=0;c.free++;document.getElementById('message').textContent='هذه الغسلة السابعة مجانية للعميل '+c.name;}
+else{c.paid++;document.getElementById('message').textContent='تم تسجيل غسلة مدفوعة. المتبقي للغسلة المجانية: '+(6-c.paid);}
+save();
+}
+render();
+</script>
+</body>
+</html>
