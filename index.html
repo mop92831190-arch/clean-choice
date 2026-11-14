@@ -6,624 +6,238 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CLEAN CHOICE</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
 <style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#17121f;
-  color:#fff;
-}
-header{
-  background:#54218a;
-  padding:22px 15px;
-  text-align:center;
-  border-bottom:3px solid #ffd43b;
-}
-header h1{color:#ffd43b;margin:0;font-size:27px}
-header p{margin:8px 0 0}
-main{max-width:850px;margin:20px auto;padding:12px}
-.card{
-  background:#241b30;
-  border:1px solid #49345d;
-  border-radius:15px;
-  padding:20px;
-  margin-bottom:17px;
-}
-h2,h3{color:#ffd43b}
-input,select,button{
-  width:100%;
-  padding:13px;
-  margin:7px 0;
-  border-radius:9px;
-  font-size:15px;
-}
-input,select{
-  border:1px solid #665477;
-  background:#17121f;
-  color:white;
-}
-button{
-  border:0;
-  background:#ffd43b;
-  color:#30213f;
-  font-weight:bold;
-  cursor:pointer;
-}
-button.secondary{
-  background:#54218a;
-  color:white;
-  border:1px solid #8060a0;
-}
-button.danger{background:#a83a4c;color:white}
-.hidden{display:none!important}
-.status{
-  white-space:pre-wrap;
-  line-height:1.7;
-  color:#ffd43b;
-}
-.vehicle{
-  background:#30243e;
-  border:1px solid #60457a;
-  border-radius:12px;
-  padding:13px;
-  margin:10px 0;
-  line-height:1.8;
-}
-.small{font-size:13px;color:#c9b9d7}
-hr{border:0;border-top:1px solid #574366;margin:20px 0}
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-@media(max-width:520px){
-  .grid{grid-template-columns:1fr}
-}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#17121f;color:#fff}
+header{background:#54218a;padding:22px 15px;text-align:center;border-bottom:3px solid #ffd43b}
+header h1{color:#ffd43b;margin:0;font-size:27px}header p{margin:8px 0 0}
+main{max-width:850px;margin:20px auto;padding:12px}.card{background:#241b30;border:1px solid #49345d;border-radius:15px;padding:20px;margin-bottom:17px}
+h2,h3{color:#ffd43b}input,select,button{width:100%;padding:13px;margin:7px 0;border-radius:9px;font-size:15px}
+input,select{border:1px solid #665477;background:#17121f;color:white}
+button{border:0;background:#ffd43b;color:#30213f;font-weight:bold;cursor:pointer}
+button.secondary{background:#54218a;color:white;border:1px solid #8060a0}button.danger{background:#a83a4c;color:white}
+.hidden{display:none!important}.status{white-space:pre-wrap;line-height:1.7;color:#ffd43b}
+.vehicle{background:#30243e;border:1px solid #60457a;border-radius:12px;padding:13px;margin:10px 0;line-height:1.8}
+.small{font-size:13px;color:#c9b9d7}hr{border:0;border-top:1px solid #574366;margin:20px 0}
+.branch-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.branch-card{background:#30243e;border:2px solid #60457a;border-radius:16px;padding:16px;text-align:center}
+.branch-card h2{margin:8px 0}.branch-card p{color:#c9b9d7;line-height:1.6}.branch-card.locked{opacity:.75}
+.qr-box{background:#fff;border-radius:10px;padding:10px;display:inline-block;margin:8px 0}
+@media(max-width:520px){.branch-grid{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
-
-<header>
-  <h1>CLEAN CHOICE</h1>
-  <p>نظام إدارة مغسلة السيارات</p>
-</header>
-
+<header><h1>CLEAN CHOICE</h1><p>نظام إدارة مغسلة السيارات</p></header>
 <main>
+<div class="card" id="branchPicker">
+<h2 style="text-align:center">أهلاً بك في CLEAN CHOICE</h2><p class="small" style="text-align:center">اختر نوع المغسلة</p>
+<div class="branch-grid">
+<div class="branch-card"><div style="font-size:42px">🚐</div><h2>المغسلة المتنقلة</h2><p>إدارة العملاء والسيارات والغسيل والاشتراكات.</p><button id="mobileBranchBtn">الدخول إلى المغسلة المتنقلة</button></div>
+<div class="branch-card locked"><div style="font-size:42px">🏢</div><h2>المغسلة الثابتة</h2><p>سيتم تفعيل هذا القسم لاحقاً بنظام مستقل.</p><button class="secondary" id="fixedBranchBtn">قريباً</button></div>
+</div><p id="branchStatus" class="status"></p></div>
 
-<!-- LOGIN -->
-<div class="card" id="loginBox">
-  <h2>تسجيل الدخول</h2>
-  <input id="email" type="email" placeholder="البريد الإلكتروني">
-  <input id="password" type="password" placeholder="كلمة المرور">
-  <button id="loginBtn">دخول</button>
-  <p id="loginStatus" class="status">أدخل بيانات حسابك.</p>
-</div>
+<div class="card hidden" id="loginBox"><h2>تسجيل الدخول - المغسلة المتنقلة</h2>
+<input id="email" type="email" placeholder="البريد الإلكتروني"><input id="password" type="password" placeholder="كلمة المرور">
+<button id="loginBtn">دخول</button><p id="loginStatus" class="status">أدخل بيانات حسابك.</p></div>
 
-<!-- DASHBOARD -->
 <div id="dashboard" class="hidden">
+<div class="card"><h2>لوحة التحكم - المغسلة المتنقلة</h2><p id="profileInfo"></p>
+<button class="secondary" id="backToBranchesBtn">العودة لاختيار المغسلة</button><button class="secondary" id="logoutBtn">تسجيل الخروج</button></div>
 
-  <div class="card">
-    <h2>لوحة التحكم</h2>
-    <p id="profileInfo"></p>
-    <p class="small">تم الاتصال بقاعدة البيانات بنجاح.</p>
-    <button class="secondary" id="logoutBtn">تسجيل الخروج</button>
-  </div>
+<div class="card"><h2>العملاء والسيارات</h2><label>البحث برقم الهاتف</label><input id="customerPhone" type="tel" placeholder="رقم هاتف العميل">
+<button id="searchCustomerBtn">بحث عن العميل</button><p id="customerStatus" class="status"></p>
+<div id="customerDetails" class="hidden"><hr><h3>بيانات العميل</h3><p id="customerInfo"></p><h3>سيارات العميل</h3><div id="vehicleList"></div>
+<hr><h3>إضافة سيارة جديدة</h3><input id="plateNumber" placeholder="رقم لوحة السيارة"><input id="vehicleType" placeholder="نوع السيارة">
+<input id="vehicleModel" placeholder="الموديل"><input id="vehicleColor" placeholder="اللون">
+<label>حجم السيارة</label><select id="vehicleSize"><option value="">اختر الحجم</option><option value="small">صغيرة</option><option value="large">كبيرة</option></select>
+<button id="addVehicleBtn">حفظ السيارة</button></div>
+<div id="newCustomerBox" class="hidden"><hr><h3>تسجيل عميل جديد</h3><input id="customerName" placeholder="اسم العميل">
+<input id="customerEmail" type="email" placeholder="البريد الإلكتروني (اختياري)"><button id="addCustomerBtn">حفظ العميل</button></div>
+<p id="actionStatus" class="status"></p></div>
 
-  <!-- CUSTOMER SEARCH -->
-  <div class="card">
-    <h2>العملاء والسيارات</h2>
+<div class="card"><h2>طلب اشتراك سيارة</h2><p class="small">يتم إضافة الرصيد بعد التحقق من التحويل واعتماد الطلب فقط.</p>
+<label>السيارة</label><select id="subscriptionVehicle"><option value="">اختر سيارة</option></select>
+<label>نوع الاشتراك</label><select id="subscriptionPeriod"><option value="daily">يومي - غسلة واحدة</option><option value="weekly">أسبوعي - خصم 5%</option><option value="monthly">شهري - خصم 10%</option></select>
+<label>عدد الغسلات</label><input id="subscriptionWashes" type="number" min="1" value="1">
+<p id="subscriptionPrice" class="status">اختر السيارة لحساب السعر.</p><button id="createRequestBtn">إنشاء طلب اشتراك</button>
+<div id="transferPanel" class="hidden"><hr><h3>بيانات التحويل البنكي</h3><p>بنك مسقط<br>المستفيد: جاسم<br><strong dir="ltr">76692883</strong></p>
+<button class="secondary" id="copyBankBtn">نسخ رقم التحويل</button><button id="whatsappBtn">إرسال تفاصيل الطلب عبر واتساب</button>
+<p class="small">أرسل صورة إثبات التحويل في محادثة واتساب. لا تعتمد الطلب قبل التأكد من وصول المبلغ في حساب البنك.</p></div>
+<p id="subscriptionStatus" class="status"></p></div>
 
-    <label>البحث برقم الهاتف</label>
-    <input id="customerPhone" type="tel" placeholder="أدخل رقم هاتف العميل">
-    <button id="searchCustomerBtn">بحث عن العميل</button>
-    <p id="customerStatus" class="status"></p>
+<div class="card"><h2>طلبات الاشتراكات المعلّقة</h2><button class="secondary" id="refreshRequestsBtn">تحديث الطلبات</button>
+<div id="pendingRequests"></div><p id="requestsStatus" class="status"></p></div>
 
-    <div id="customerDetails" class="hidden">
-      <hr>
-      <h3>بيانات العميل</h3>
-      <p id="customerInfo"></p>
-
-      <h3>سيارات العميل</h3>
-      <div id="vehicleList"></div>
-
-      <hr>
-      <h3>إضافة سيارة جديدة</h3>
-
-      <input id="plateNumber" placeholder="رقم لوحة السيارة">
-      <input id="vehicleType" placeholder="نوع السيارة">
-      <input id="vehicleModel" placeholder="الموديل">
-      <input id="vehicleColor" placeholder="اللون">
-
-      <label>حجم السيارة</label>
-      <select id="vehicleSize">
-        <option value="">اختر الحجم</option>
-        <option value="small">صغيرة</option>
-        <option value="large">كبيرة</option>
-      </select>
-
-      <button id="addVehicleBtn">حفظ السيارة</button>
-    </div>
-
-    <div id="newCustomerBox" class="hidden">
-      <hr>
-      <h3>تسجيل عميل جديد</h3>
-      <input id="customerName" placeholder="اسم العميل">
-      <input id="customerEmail" type="email" placeholder="البريد الإلكتروني (اختياري)">
-      <button id="addCustomerBtn">حفظ العميل</button>
-    </div>
-
-    <p id="actionStatus" class="status"></p>
-  </div>
-
-  <!-- SUBSCRIPTIONS -->
-  <div class="card">
-    <h2>بيع اشتراك سيارة</h2>
-    <p class="small">ابحث عن العميل أولاً، ثم اختر إحدى سياراته.</p>
-
-    <label>السيارة</label>
-    <select id="subscriptionVehicle">
-      <option value="">اختر سيارة</option>
-    </select>
-
-    <label>نوع الاشتراك</label>
-    <select id="subscriptionPeriod">
-      <option value="daily">يومي - غسلة واحدة</option>
-      <option value="weekly">أسبوعي - خصم 5%</option>
-      <option value="monthly">شهري - خصم 10%</option>
-    </select>
-
-    <label>عدد الغسلات</label>
-    <input id="subscriptionWashes" type="number" min="1" value="1">
-
-    <label>طريقة الدفع</label>
-    <select id="subscriptionPayment">
-      <option value="cash">نقداً</option>
-      <option value="card">بطاقة</option>
-      <option value="other">أخرى</option>
-    </select>
-
-    <p id="subscriptionPrice" class="status">اختر السيارة لحساب السعر.</p>
-    <button id="sellSubscriptionBtn">تسجيل الاشتراك</button>
-    <p id="subscriptionStatus" class="status"></p>
-  </div>
-
+<div class="card"><h2>مسح QR السيارة</h2><p class="small">امسح رمز السيارة لفتحها. هذه الخاصية للموظفين المسجلين فقط.</p>
+<button id="startScannerBtn">تشغيل الكاميرا ومسح QR</button><button class="secondary hidden" id="stopScannerBtn">إيقاف الكاميرا</button>
+<div id="scanner"></div><p id="scanStatus" class="status"></p></div>
 </div>
 </main>
-
 <script>
-const SUPABASE_URL =
-'https://qblfqvahjmsevucuysfe.supabase.co';
+const SUPABASE_URL='https://qblfqvahjmsevucuysfe.supabase.co';
+const SUPABASE_KEY='sb_publishable_WSnRwXiHI1iF5ZS5UpNV-Q_sYpZuOU6';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let currentCustomerId=null,currentCustomer=null,currentVehicles=[],currentUserRole=null,latestRequest=null,qrScanner=null;
+function message(id,text){$(id).textContent=text;}
 
-const SUPABASE_KEY =
-'sb_publishable_WSnRwXiHI1iF5ZS5UpNV-Q_sYpZuOU6';
-
-const db = supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-const $ = id => document.getElementById(id);
-
-let currentCustomerId = null;
-let currentCustomer = null;
-let currentVehicles = [];
-let currentUserRole = null;
-
-function message(id,text){
-  $(id).textContent = text;
-}
+$('mobileBranchBtn').onclick=()=>{$('branchPicker').classList.add('hidden');$('loginBox').classList.remove('hidden');message('loginStatus','أدخل بيانات حسابك للدخول إلى المغسلة المتنقلة.');};
+$('fixedBranchBtn').onclick=()=>message('branchStatus','المغسلة الثابتة سيتم تفعيلها لاحقاً.');
+$('backToBranchesBtn').onclick=()=>{$('dashboard').classList.add('hidden');$('loginBox').classList.add('hidden');$('branchPicker').classList.remove('hidden');};
 
 async function showProfile(user){
-  message('loginStatus','جارٍ التحقق من الحساب...');
-
-  const {data,error} = await db
-    .from('profiles')
-    .select('full_name,role,active')
-    .eq('id',user.id)
-    .single();
-
-  if(error){
-    message('loginStatus','تعذر قراءة الملف الشخصي: '+error.message);
-    return;
-  }
-
-  if(!data || !data.active ||
-     !['owner','employee'].includes(data.role)){
-    message('loginStatus','الحساب غير مفعّل أو لا يملك صلاحية الدخول.');
-    return;
-  }
-
-  currentUserRole = data.role;
-
-  $('loginBox').classList.add('hidden');
-  $('dashboard').classList.remove('hidden');
-
-  $('profileInfo').textContent =
-    'الاسم: '+(data.full_name || 'المستخدم')+
-    ' | الصلاحية: '+data.role;
+ message('loginStatus','جارٍ التحقق من الحساب...');
+ const {data,error}=await db.from('profiles').select('full_name,role,active').eq('id',user.id).single();
+ if(error){message('loginStatus','تعذر قراءة الملف الشخصي: '+error.message);return;}
+ if(!data||!data.active||!['owner','employee'].includes(data.role)){message('loginStatus','الحساب غير مفعّل أو لا يملك صلاحية الدخول.');return;}
+ currentUserRole=data.role;$('branchPicker').classList.add('hidden');$('loginBox').classList.add('hidden');$('dashboard').classList.remove('hidden');
+ $('profileInfo').textContent='الاسم: '+(data.full_name||'المستخدم')+' | الصلاحية: '+data.role;
+ await loadPendingRequests();
 }
-
-// LOGIN
-$('loginBtn').onclick = async ()=>{
-  const email = $('email').value.trim();
-  const password = $('password').value;
-
-  if(!email || !password){
-    message('loginStatus','أدخل البريد وكلمة المرور.');
-    return;
-  }
-
-  message('loginStatus','جارٍ تسجيل الدخول...');
-
-  const {data,error} = await db.auth.signInWithPassword({
-    email,password
-  });
-
-  if(error){
-    message('loginStatus','تعذر الدخول: '+error.message);
-    return;
-  }
-
-  await showProfile(data.user);
+$('loginBtn').onclick=async()=>{
+ const email=$('email').value.trim(),password=$('password').value;
+ if(!email||!password){message('loginStatus','أدخل البريد وكلمة المرور.');return;}
+ message('loginStatus','جارٍ تسجيل الدخول...');
+ const {data,error}=await db.auth.signInWithPassword({email,password});
+ if(error){message('loginStatus','تعذر الدخول: '+error.message);return;}await showProfile(data.user);
 };
+$('logoutBtn').onclick=async()=>{await db.auth.signOut();location.reload();};
 
-// LOGOUT
-$('logoutBtn').onclick = async ()=>{
-  await db.auth.signOut();
-  location.reload();
+$('searchCustomerBtn').onclick=async()=>{
+ const phone=$('customerPhone').value.trim();if(!phone){message('customerStatus','أدخل رقم الهاتف أولاً.');return;}
+ currentCustomerId=null;currentCustomer=null;currentVehicles=[];$('customerDetails').classList.add('hidden');$('newCustomerBox').classList.add('hidden');message('customerStatus','جارٍ البحث...');
+ const {data,error}=await db.from('customers').select('id,customer_number,full_name,phone,email').eq('phone',phone).maybeSingle();
+ if(error){message('customerStatus','خطأ: '+error.message);return;}
+ if(!data){message('customerStatus','العميل غير موجود. يمكنك تسجيله جديداً.');$('newCustomerBox').classList.remove('hidden');return;}
+ currentCustomerId=data.id;currentCustomer=data;$('customerDetails').classList.remove('hidden');$('newCustomerBox').classList.add('hidden');
+ $('customerInfo').textContent='رقم العميل: '+data.customer_number+' | الاسم: '+data.full_name+' | الهاتف: '+data.phone;
+ message('customerStatus','تم العثور على العميل.');await loadVehicles();
 };
-
-// SEARCH CUSTOMER
-$('searchCustomerBtn').onclick = async ()=>{
-  const phone = $('customerPhone').value.trim();
-
-  if(!phone){
-    message('customerStatus','أدخل رقم الهاتف أولاً.');
-    return;
-  }
-
-  currentCustomerId = null;
-  currentCustomer = null;
-  currentVehicles = [];
-
-  $('customerDetails').classList.add('hidden');
-  $('newCustomerBox').classList.add('hidden');
-
-  message('customerStatus','جارٍ البحث...');
-  message('actionStatus','');
-
-  const {data,error} = await db
-    .from('customers')
-    .select('id,customer_number,full_name,phone,email')
-    .eq('phone',phone)
-    .maybeSingle();
-
-  if(error){
-    message('customerStatus','خطأ: '+error.message);
-    return;
-  }
-
-  if(!data){
-    message('customerStatus','العميل غير موجود. يمكنك تسجيله جديداً.');
-    $('newCustomerBox').classList.remove('hidden');
-    return;
-  }
-
-  currentCustomerId = data.id;
-  currentCustomer = data;
-
-  $('customerDetails').classList.remove('hidden');
-  $('newCustomerBox').classList.add('hidden');
-
-  $('customerInfo').textContent =
-    'رقم العميل: '+data.customer_number+
-    ' | الاسم: '+data.full_name+
-    ' | الهاتف: '+data.phone;
-
-  message('customerStatus','تم العثور على العميل.');
-  await loadVehicles();
+$('addCustomerBtn').onclick=async()=>{
+ const full_name=$('customerName').value.trim(),phone=$('customerPhone').value.trim(),email=$('customerEmail').value.trim();
+ if(!full_name||!phone){message('actionStatus','أدخل الاسم ورقم الهاتف.');return;}
+ message('actionStatus','جارٍ حفظ العميل...');
+ const {data,error}=await db.from('customers').insert({full_name,phone,email:email||null}).select('id,customer_number,full_name,phone,email').single();
+ if(error){message('actionStatus','تعذر الحفظ: '+error.message);return;}
+ currentCustomerId=data.id;currentCustomer=data;$('customerDetails').classList.remove('hidden');$('newCustomerBox').classList.add('hidden');
+ $('customerInfo').textContent='رقم العميل: '+data.customer_number+' | الاسم: '+data.full_name+' | الهاتف: '+data.phone;
+ message('customerStatus','تم تسجيل العميل بنجاح.');await loadVehicles();
 };
-
-// CREATE CUSTOMER
-$('addCustomerBtn').onclick = async ()=>{
-  const full_name = $('customerName').value.trim();
-  const phone = $('customerPhone').value.trim();
-  const email = $('customerEmail').value.trim();
-
-  if(!full_name || !phone){
-    message('actionStatus','أدخل الاسم ورقم الهاتف.');
-    return;
-  }
-
-  message('actionStatus','جارٍ حفظ العميل...');
-
-  const {data,error} = await db
-    .from('customers')
-    .insert({
-      full_name,
-      phone,
-      email:email || null
-    })
-    .select('id,customer_number,full_name,phone,email')
-    .single();
-
-  if(error){
-    message('actionStatus','تعذر الحفظ: '+error.message);
-    return;
-  }
-
-  currentCustomerId = data.id;
-  currentCustomer = data;
-
-  $('customerDetails').classList.remove('hidden');
-  $('newCustomerBox').classList.add('hidden');
-
-  $('customerInfo').textContent =
-    'رقم العميل: '+data.customer_number+
-    ' | الاسم: '+data.full_name+
-    ' | الهاتف: '+data.phone;
-
-  message('customerStatus','تم تسجيل العميل بنجاح.');
-  message('actionStatus','أضف سيارات العميل الآن.');
-
-  await loadVehicles();
-};
-
-// LOAD VEHICLES
 async function loadVehicles(){
-  if(!currentCustomerId) return;
-
-  const {data,error} = await db
-    .from('vehicles')
-    .select('id,plate_number,vehicle_type,vehicle_model,color,vehicle_size')
-    .eq('customer_id',currentCustomerId)
-    .order('created_at',{ascending:false});
-
-  if(error){
-    message('actionStatus','تعذر تحميل السيارات: '+error.message);
-    return;
-  }
-
-  currentVehicles = data || [];
-
-  const list = $('vehicleList');
-  list.replaceChildren();
-
-  const selector = $('subscriptionVehicle');
-  selector.replaceChildren();
-
-  const firstOption = document.createElement('option');
-  firstOption.value = '';
-  firstOption.textContent = 'اختر سيارة';
-  selector.appendChild(firstOption);
-
-  if(!currentVehicles.length){
-    list.textContent = 'لا توجد سيارات مسجلة لهذا العميل.';
-  }
-
-  for(const vehicle of currentVehicles){
-    const item = document.createElement('div');
-    item.className = 'vehicle';
-
-    const title = document.createElement('strong');
-    title.textContent = 'لوحة: '+vehicle.plate_number;
-    item.appendChild(title);
-
-    const details = document.createElement('p');
-    details.textContent =
-      'النوع: '+(vehicle.vehicle_type || '-')+
-      ' | الموديل: '+(vehicle.vehicle_model || '-')+
-      ' | اللون: '+(vehicle.color || '-')+
-      ' | الحجم: '+(vehicle.vehicle_size === 'small' ? 'صغيرة' :
-      vehicle.vehicle_size === 'large' ? 'كبيرة' : 'غير محدد');
-
-    item.appendChild(details);
-
-    const walletResult = await db
-      .from('subscription_wallets')
-      .select('washes_balance')
-      .eq('vehicle_id',vehicle.id)
-      .maybeSingle();
-
-    const balance = walletResult.data ?
-      walletResult.data.washes_balance : 0;
-
-    const balanceText = document.createElement('p');
-    balanceText.textContent = 'رصيد الاشتراك: '+balance+' غسلة';
-    balanceText.style.color = '#ffd43b';
-    item.appendChild(balanceText);
-
-    list.appendChild(item);
-
-    const option = document.createElement('option');
-    option.value = vehicle.id;
-    option.textContent =
-      vehicle.plate_number+' - '+
-      (vehicle.vehicle_size === 'small' ? 'صغيرة' :
-       vehicle.vehicle_size === 'large' ? 'كبيرة' : 'الحجم غير محدد');
-
-    selector.appendChild(option);
-  }
-
-  updateSubscriptionPrice();
+ if(!currentCustomerId)return;
+ const {data,error}=await db.from('vehicles').select('id,plate_number,vehicle_type,vehicle_model,color,vehicle_size').eq('customer_id',currentCustomerId).order('created_at',{ascending:false});
+ if(error){message('actionStatus','تعذر تحميل السيارات: '+error.message);return;}
+ currentVehicles=data||[];const list=$('vehicleList');list.replaceChildren();const sel=$('subscriptionVehicle');sel.replaceChildren();
+ const first=document.createElement('option');first.value='';first.textContent='اختر سيارة';sel.appendChild(first);
+ if(!currentVehicles.length)list.textContent='لا توجد سيارات مسجلة لهذا العميل.';
+ for(const v of currentVehicles){
+  const item=document.createElement('div');item.className='vehicle';
+  const title=document.createElement('strong');title.textContent='لوحة: '+v.plate_number;item.appendChild(title);
+  const detail=document.createElement('p');detail.textContent='النوع: '+(v.vehicle_type||'-')+' | الموديل: '+(v.vehicle_model||'-')+' | اللون: '+(v.color||'-')+' | الحجم: '+(v.vehicle_size==='small'?'صغيرة':v.vehicle_size==='large'?'كبيرة':'غير محدد');item.appendChild(detail);
+  const wr=await db.from('subscription_wallets').select('washes_balance').eq('vehicle_id',v.id).maybeSingle();
+  const bal=document.createElement('p');bal.textContent='رصيد الاشتراك: '+(wr.data?.washes_balance||0)+' غسلة';bal.style.color='#ffd43b';item.appendChild(bal);
+  const qlabel=document.createElement('p');qlabel.textContent='QR الخاص بهذه السيارة (معرّف السيارة فقط):';item.appendChild(qlabel);
+  const qbox=document.createElement('div');qbox.className='qr-box';const q=document.createElement('div');qbox.appendChild(q);item.appendChild(qbox);
+  if(window.QRCode)new QRCode(q,{text:v.id,width:132,height:132});else q.textContent=v.id;
+  list.appendChild(item);
+  const opt=document.createElement('option');opt.value=v.id;opt.textContent=v.plate_number+' - '+(v.vehicle_size==='small'?'صغيرة':v.vehicle_size==='large'?'كبيرة':'الحجم غير محدد');sel.appendChild(opt);
+ }
+ updateSubscriptionPrice();
 }
-
-// ADD VEHICLE
-$('addVehicleBtn').onclick = async ()=>{
-  if(!currentCustomerId){
-    message('actionStatus','ابحث عن العميل أولاً.');
-    return;
-  }
-
-  const plate_number = $('plateNumber').value.trim();
-  const vehicle_size = $('vehicleSize').value;
-
-  if(!plate_number || !vehicle_size){
-    message('actionStatus','أدخل رقم اللوحة وحجم السيارة.');
-    return;
-  }
-
-  message('actionStatus','جارٍ حفظ السيارة...');
-
-  const {error} = await db
-    .from('vehicles')
-    .insert({
-      customer_id:currentCustomerId,
-      plate_number,
-      vehicle_type:$('vehicleType').value.trim() || null,
-      vehicle_model:$('vehicleModel').value.trim() || null,
-      color:$('vehicleColor').value.trim() || null,
-      vehicle_size
-    });
-
-  if(error){
-    message('actionStatus','تعذر حفظ السيارة: '+error.message);
-    return;
-  }
-
-  $('plateNumber').value = '';
-  $('vehicleType').value = '';
-  $('vehicleModel').value = '';
-  $('vehicleColor').value = '';
-  $('vehicleSize').value = '';
-
-  message('actionStatus','تمت إضافة السيارة بنجاح.');
-  await loadVehicles();
+$('addVehicleBtn').onclick=async()=>{
+ if(!currentCustomerId){message('actionStatus','ابحث عن العميل أولاً.');return;}
+ const plate_number=$('plateNumber').value.trim(),vehicle_size=$('vehicleSize').value;
+ if(!plate_number||!vehicle_size){message('actionStatus','أدخل رقم اللوحة وحجم السيارة.');return;}
+ message('actionStatus','جارٍ حفظ السيارة...');
+ const {error}=await db.from('vehicles').insert({customer_id:currentCustomerId,plate_number,vehicle_type:$('vehicleType').value.trim()||null,vehicle_model:$('vehicleModel').value.trim()||null,color:$('vehicleColor').value.trim()||null,vehicle_size});
+ if(error){message('actionStatus','تعذر حفظ السيارة: '+error.message);return;}
+ ['plateNumber','vehicleType','vehicleModel','vehicleColor','vehicleSize'].forEach(id=>$(id).value='');
+ message('actionStatus','تمت إضافة السيارة بنجاح.');await loadVehicles();
 };
 
-// SUBSCRIPTION PRICE PREVIEW
 function updateSubscriptionPrice(){
-  const vehicle = currentVehicles.find(
-    v=>v.id === $('subscriptionVehicle').value
-  );
-
-  const period = $('subscriptionPeriod').value;
-  const washes = Number($('subscriptionWashes').value);
-
-  if(period === 'daily'){
-    $('subscriptionWashes').value = 1;
-    $('subscriptionWashes').disabled = true;
-  }else{
-    $('subscriptionWashes').disabled = false;
-  }
-
-  if(!vehicle){
-    message('subscriptionPrice','اختر السيارة لحساب السعر.');
-    return;
-  }
-
-  if(!vehicle.vehicle_size){
-    message('subscriptionPrice','حدد حجم السيارة أولاً.');
-    return;
-  }
-
-  const base = vehicle.vehicle_size === 'small' ? 1.890 : 2.390;
-  const count = period === 'daily' ? 1 : washes;
-
-  if(!Number.isInteger(count) || count < 1){
-    message('subscriptionPrice','أدخل عدد غسلات صحيح.');
-    return;
-  }
-
-  const discount =
-    period === 'weekly' ? 0.95 :
-    period === 'monthly' ? 0.90 : 1;
-
-  const total = (base * count * discount).toFixed(3);
-
-  message(
-    'subscriptionPrice',
-    'سعر الغسلة: '+base.toFixed(3)+
-    ' ر.ع | العدد: '+count+
-    ' | الإجمالي: '+total+' ر.ع'
-  );
+ const v=currentVehicles.find(x=>x.id===$('subscriptionVehicle').value),period=$('subscriptionPeriod').value;
+ if(period==='daily'){$('subscriptionWashes').value=1;$('subscriptionWashes').disabled=true;}else $('subscriptionWashes').disabled=false;
+ const n=period==='daily'?1:Number($('subscriptionWashes').value);
+ if(!v){message('subscriptionPrice','اختر السيارة لحساب السعر.');return;}
+ if(!v.vehicle_size){message('subscriptionPrice','حدد حجم السيارة أولاً.');return;}
+ if(!Number.isInteger(n)||n<1){message('subscriptionPrice','أدخل عدد غسلات صحيح.');return;}
+ const base=v.vehicle_size==='small'?1.890:2.390,discount=period==='weekly'?.95:period==='monthly'?.90:1;
+ message('subscriptionPrice','سعر الغسلة: '+base.toFixed(3)+' ر.ع | العدد: '+n+' | الإجمالي: '+(base*n*discount).toFixed(3)+' ر.ع');
 }
+$('subscriptionVehicle').onchange=updateSubscriptionPrice;$('subscriptionPeriod').onchange=updateSubscriptionPrice;$('subscriptionWashes').oninput=updateSubscriptionPrice;
 
-$('subscriptionVehicle').onchange = updateSubscriptionPrice;
-$('subscriptionPeriod').onchange = updateSubscriptionPrice;
-$('subscriptionWashes').oninput = updateSubscriptionPrice;
+$('createRequestBtn').onclick=async()=>{
+ const vehicleId=$('subscriptionVehicle').value,period=$('subscriptionPeriod').value,washes=period==='daily'?1:Number($('subscriptionWashes').value),vehicle=currentVehicles.find(v=>v.id===vehicleId);
+ if(!currentCustomer||!vehicle){message('subscriptionStatus','ابحث عن العميل واختر إحدى سياراته أولاً.');return;}
+ if(!Number.isInteger(washes)||washes<1){message('subscriptionStatus','تحقق من عدد الغسلات.');return;}
+ if(!confirm('إنشاء طلب اشتراك معلّق؟ لن يضاف الرصيد إلا بعد الاعتماد.'))return;
+ message('subscriptionStatus','جارٍ إنشاء الطلب...');
+ const {data,error}=await db.rpc('create_subscription_request',{p_vehicle_id:vehicleId,p_period_type:period,p_washes:washes});
+ if(error){message('subscriptionStatus','تعذر إنشاء الطلب: '+error.message);return;}
+ const r=Array.isArray(data)?data[0]:data;if(!r?.request_id){message('subscriptionStatus','لم تصل بيانات الطلب.');return;}
+ latestRequest={id:r.request_id,amount:Number(r.total_amount),period,washes,vehicle};
+ $('transferPanel').classList.remove('hidden');
+ message('subscriptionStatus','تم إنشاء طلب معلق. المبلغ: '+latestRequest.amount.toFixed(3)+' ر.ع. الرصيد لم يضف بعد.');
+ await loadPendingRequests();
+};
+$('copyBankBtn').onclick=async()=>{try{await navigator.clipboard.writeText('76692883');message('subscriptionStatus','تم نسخ رقم بنك مسقط.');}catch(e){message('subscriptionStatus','انسخ الرقم يدوياً: 76692883');}};
+$('whatsappBtn').onclick=()=>{
+ if(!latestRequest||!currentCustomer)return;
+ const p=latestRequest,periodName=p.period==='daily'?'يومي':p.period==='weekly'?'أسبوعي':'شهري';
+ const msg='مرحباً CLEAN CHOICE، أرفق إثبات تحويل اشتراك.\nالعميل: '+currentCustomer.full_name+'\nالهاتف: '+currentCustomer.phone+'\nالسيارة: '+p.vehicle.plate_number+'\nالاشتراك: '+periodName+'\nعدد الغسلات: '+p.washes+'\nالمبلغ: '+p.amount.toFixed(3)+' ر.ع\nرقم الطلب: '+p.id;
+ window.open('https://wa.me/96876692883?text='+encodeURIComponent(msg),'_blank');
+};
 
-// SELL SUBSCRIPTION
-$('sellSubscriptionBtn').onclick = async ()=>{
-  const vehicleId = $('subscriptionVehicle').value;
-  const period = $('subscriptionPeriod').value;
-  const washes = Number($('subscriptionWashes').value);
-  const payment = $('subscriptionPayment').value;
-
-  if(!vehicleId){
-    message('subscriptionStatus','اختر سيارة أولاً.');
-    return;
-  }
-
-  if(!Number.isInteger(washes) || washes < 1){
-    message('subscriptionStatus','أدخل عدد غسلات صحيح.');
-    return;
-  }
-
-  if(period === 'daily' && washes !== 1){
-    message('subscriptionStatus','الاشتراك اليومي غسلة واحدة.');
-    return;
-  }
-
-  const vehicle = currentVehicles.find(v=>v.id === vehicleId);
-
-  if(!vehicle || !vehicle.vehicle_size){
-    message('subscriptionStatus','يجب تحديد حجم السيارة أولاً.');
-    return;
-  }
-
-  if(!confirm('هل تريد تأكيد تسجيل الاشتراك لهذه السيارة؟')){
-    return;
-  }
-
-  message('subscriptionStatus','جارٍ تسجيل الاشتراك...');
-
-  const {data,error} = await db.rpc(
-    'sell_vehicle_subscription',
-    {
-      p_vehicle_id:vehicleId,
-      p_period_type:period,
-      p_washes:period === 'daily' ? 1 : washes,
-      p_payment_method:payment
-    }
-  );
-
-  if(error){
-    message('subscriptionStatus','تعذر تسجيل الاشتراك: '+error.message);
-    return;
-  }
-
-  const result = Array.isArray(data) ? data[0] : data;
-
-  if(!result){
-    message('subscriptionStatus','لم تصل نتيجة تسجيل الاشتراك.');
-    return;
-  }
-
-  message(
-    'subscriptionStatus',
-    'تم تسجيل الاشتراك بنجاح!\n'+
-    'المبلغ: '+Number(result.total_amount).toFixed(3)+' ر.ع\n'+
-    'الرصيد الجديد: '+result.new_balance+' غسلة'
-  );
-
-  await loadVehicles();
+async function loadPendingRequests(){
+ message('requestsStatus','جارٍ تحميل الطلبات...');
+ const {data,error}=await db.from('subscription_requests').select('id,period_type,washes_purchased,amount,status,created_at,customer_id,vehicle_id').eq('status','pending').order('created_at',{ascending:false});
+ if(error){message('requestsStatus','تعذر تحميل الطلبات: '+error.message);return;}
+ const host=$('pendingRequests');host.replaceChildren();
+ if(!data?.length){message('requestsStatus','لا توجد طلبات معلّقة حالياً.');return;}
+ message('requestsStatus','عدد الطلبات المعلّقة: '+data.length);
+ for(const r of data){
+  const [c,v]=await Promise.all([db.from('customers').select('full_name,phone').eq('id',r.customer_id).maybeSingle(),db.from('vehicles').select('plate_number').eq('id',r.vehicle_id).maybeSingle()]);
+  const card=document.createElement('div');card.className='vehicle';const p=document.createElement('p');
+  p.textContent='العميل: '+(c.data?.full_name||'-')+' | الهاتف: '+(c.data?.phone||'-')+'\nالسيارة: '+(v.data?.plate_number||'-')+'\nالباقة: '+r.period_type+' | الغسلات: '+r.washes_purchased+'\nالمبلغ: '+Number(r.amount).toFixed(3)+' ر.ع';card.appendChild(p);
+  const a=document.createElement('button');a.textContent='اعتماد بعد التحقق من التحويل';a.onclick=()=>approveRequest(r.id);
+  const x=document.createElement('button');x.textContent='رفض الطلب';x.className='danger';x.onclick=()=>rejectRequest(r.id);card.append(a,x);host.appendChild(card);
+ }
 }
+async function approveRequest(id){
+ if(!confirm('هل تحققت من وصول التحويل في حساب البنك وتريد اعتماد الطلب؟'))return;
+ message('requestsStatus','جارٍ اعتماد الطلب...');
+ const {data,error}=await db.rpc('approve_subscription_request',{p_request_id:id});
+ if(error){message('requestsStatus','تعذر الاعتماد: '+error.message);return;}
+ const r=Array.isArray(data)?data[0]:data;
+ alert('تم اعتماد الاشتراك.\nكود الاشتراك: '+r.approved_code+'\nالرصيد الجديد: '+r.new_balance+' غسلة');
+ await loadPendingRequests();await loadVehicles();
+}
+async function rejectRequest(id){
+ if(!confirm('تأكيد رفض الطلب؟'))return;
+ const {error}=await db.rpc('reject_subscription_request',{p_request_id:id});
+ if(error){message('requestsStatus','تعذر رفض الطلب: '+error.message);return;}
+ message('requestsStatus','تم رفض الطلب.');await loadPendingRequests();
+}
+$('refreshRequestsBtn').onclick=loadPendingRequests;
 
-// CHECK EXISTING SESSION
-(async()=>{
-  const {data,error} = await db.auth.getSession();
+$('startScannerBtn').onclick=async()=>{
+ if(!window.Html5Qrcode){message('scanStatus','تعذر تحميل قارئ QR. تحقق من الإنترنت.');return;}
+ $('scanner').replaceChildren();$('stopScannerBtn').classList.remove('hidden');
+ try{
+  qrScanner=new Html5Qrcode('scanner');
+  await qrScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:230,height:230}},async decoded=>{
+   await qrScanner.stop();qrScanner=null;$('stopScannerBtn').classList.add('hidden');
+   const v=currentVehicles.find(x=>x.id===decoded);
+   if(v){$('subscriptionVehicle').value=v.id;updateSubscriptionPrice();message('scanStatus','تم العثور على السيارة: '+v.plate_number);}
+   else{const {data,error}=await db.from('vehicles').select('id,plate_number').eq('id',decoded).maybeSingle();message('scanStatus',error||!data?'الرمز غير معروف أو لا تملك صلاحية الوصول.':'السيارة '+data.plate_number+' موجودة. ابحث عن العميل لعرض ملفه.');}
+  });
+  message('scanStatus','وجّه الكاميرا إلى QR السيارة.');
+ }catch(e){message('scanStatus','تعذر تشغيل الكاميرا: '+e.message);}
+};
+$('stopScannerBtn').onclick=async()=>{if(qrScanner){try{await qrScanner.stop();}catch(e){}qrScanner=null;}$('stopScannerBtn').classList.add('hidden');message('scanStatus','تم إيقاف الكاميرا.');};
 
-  if(error){
-    message('loginStatus','تعذر التحقق من الجلسة: '+error.message);
-    return;
-  }
-
-  if(data.session){
-    await showProfile(data.session.user);
-  }
-})();
+(async()=>{const {data,error}=await db.auth.getSession();if(error){message('loginStatus','تعذر التحقق من الجلسة: '+error.message);return;}if(data.session)await showProfile(data.session.user);})();
 </script>
-
 </body>
 </html>
