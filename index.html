@@ -34,12 +34,62 @@ button{border:0;background:#54218a;color:white;font-weight:bold}
 <p id="status">أدخل بيانات حسابك.</p>
 </div>
 
+
 <div class="card hidden" id="dashboard">
-<h2>مرحباً بك في CLEAN CHOICE</h2>
-<p id="profileInfo"></p>
-<p>تم الاتصال بقاعدة البيانات بنجاح.</p>
-<button id="logoutBtn">تسجيل الخروج</button>
+  <h2>مرحباً بك في CLEAN CHOICE</h2>
+  <p id="profileInfo"></p>
+  <p>تم الاتصال بقاعدة البيانات بنجاح.</p>
+
+  <hr>
+
+  <h3>إدارة العملاء والسيارات</h3>
+
+  <label>رقم هاتف العميل</label>
+  <input id="customerPhone" type="tel" placeholder="رقم الهاتف">
+
+  <button id="searchCustomerBtn">بحث عن العميل</button>
+
+  <p id="customerStatus"></p>
+
+  <div id="customerDetails" class="hidden">
+    <h3>بيانات العميل</h3>
+    <p id="customerInfo"></p>
+
+    <h3>سيارات العميل</h3>
+    <div id="vehicleList"></div>
+
+    <hr>
+    <h3>إضافة سيارة جديدة</h3>
+
+    <input id="plateNumber" placeholder="رقم لوحة السيارة">
+    <input id="vehicleType" placeholder="نوع السيارة">
+    <input id="vehicleModel" placeholder="الموديل">
+    <input id="vehicleColor" placeholder="اللون">
+
+    <label>حجم السيارة</label>
+    <select id="vehicleSize">
+      <option value="">اختر حجم السيارة</option>
+      <option value="small">صغيرة</option>
+      <option value="large">كبيرة</option>
+    </select>
+
+    <button id="addVehicleBtn">حفظ السيارة</button>
+  </div>
+
+  <hr>
+
+  <div id="newCustomerBox">
+    <h3>تسجيل عميل جديد</h3>
+    <input id="customerName" placeholder="اسم العميل">
+    <input id="customerEmail" type="email" placeholder="البريد الإلكتروني (اختياري)">
+    <button id="addCustomerBtn">حفظ العميل</button>
+  </div>
+
+  <p id="actionStatus"></p>
+
+  <button id="logoutBtn">تسجيل الخروج</button>
 </div>
+
 </main>
 
 <script>
