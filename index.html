@@ -1,4 +1,4 @@
-,index.html
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -91,7 +91,6 @@ td,th{padding:9px;border-bottom:1px solid #574366;text-align:right}
 </div>
 </div>
 
-<!-- العملاء -->
 <div id="customers" class="panel active">
 <div class="card">
 <h2>بحث وتسجيل العملاء</h2>
@@ -125,7 +124,6 @@ td,th{padding:9px;border-bottom:1px solid #574366;text-align:right}
 </div>
 </div>
 
-<!-- تسجيل الغسلة -->
 <div id="wash" class="panel">
 <div class="card">
 <h2>تسجيل غسلة جديدة</h2>
@@ -158,7 +156,6 @@ td,th{padding:9px;border-bottom:1px solid #574366;text-align:right}
 </div>
 </div>
 
-<!-- الولاء -->
 <div id="loyalty" class="panel">
 <div class="card">
 <h2>محفظة الولاء</h2>
@@ -170,7 +167,6 @@ td,th{padding:9px;border-bottom:1px solid #574366;text-align:right}
 </div>
 </div>
 
-<!-- الاشتراكات -->
 <div id="subscriptions" class="panel">
 <div class="card">
 <h2>رصيد الاشتراكات لكل سيارة</h2>
@@ -181,7 +177,6 @@ td,th{padding:9px;border-bottom:1px solid #574366;text-align:right}
 </div>
 </div>
 
-<!-- الطلبات -->
 <div id="requests" class="panel">
 <div class="card">
 <h2>طلبات الاشتراك المعلقة</h2>
@@ -191,7 +186,6 @@ td,th{padding:9px;border-bottom:1px solid #574366;text-align:right}
 </div>
 </div>
 
-<!-- السجل -->
 <div id="history" class="panel">
 <div class="card">
 <h2>سجل الغسلات</h2>
@@ -202,7 +196,6 @@ td,th{padding:9px;border-bottom:1px solid #574366;text-align:right}
 </div>
 </div>
 
-<!-- الاختبار -->
 <div id="testing" class="panel">
 <div class="card test">
 <h2>🧪 مركز الاختبار التجريبي</h2>
@@ -240,7 +233,6 @@ td,th{padding:9px;border-bottom:1px solid #574366;text-align:right}
 </div>
 </div>
 
-<!-- المصروفات -->
 <div id="expenses" class="panel">
 <div class="card">
 <h2>إضافة مصروف</h2>
@@ -257,7 +249,6 @@ td,th{padding:9px;border-bottom:1px solid #574366;text-align:right}
 </div>
 </div>
 
-<!-- الموظفون -->
 <div id="staff" class="panel">
 <div class="card">
 <h2>إدارة الموظفين</h2>
@@ -524,7 +515,6 @@ $('testWashBtn').onclick=async()=>{
  if(!id||!Number.isInteger(count)||count<1||count>30){msg('testWashMsg','اختر السيارة وأدخل عدداً من 1 إلى 30.');return}
  if(!confirm('تنفيذ '+count+' غسلة تجريبية من نوع '+type+'؟'))return;
  const service=$('testSize')?.value==='large'?'202c208f-587e-46eb-b23e-c964433cfc0d':'7ac73bbe-8981-4eca-aa07-8f81afa4a0de';
- // نقرأ حجم السيارة من قاعدة البيانات لاختيار الخدمة الصحيحة
  const {data:v,error:ve}=await db.from('vehicles').select('vehicle_size').eq('id',id).single();
  if(ve){msg('testWashMsg',ve.message);return}
  const sid=v.vehicle_size==='large'?'202c208f-587e-46eb-b23e-c964433cfc0d':'7ac73bbe-8981-4eca-aa07-8f81afa4a0de';
